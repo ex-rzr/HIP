@@ -276,7 +276,11 @@ hipError_t ihipModuleLaunchKernel(hipFunction_t f, uint32_t globalWorkSizeX,
     return hipErrorOutOfMemory;
   }
 
-  size_t globalWorkOffset[3] = {0};
+  size_t globalWorkOffset[3] = {
+    size_t(blockDimX) | (size_t(blockDimY) << 16) | (size_t(blockDimZ) << 32),
+    size_t(globalWorkSizeX / blockDimX) | (size_t(globalWorkSizeY / blockDimY) << 32),
+    size_t(globalWorkSizeZ / blockDimZ)
+  };
   size_t globalWorkSize[3] = { globalWorkSizeX, globalWorkSizeY, globalWorkSizeZ };
   size_t localWorkSize[3] = { blockDimX, blockDimY, blockDimZ };
   amd::NDRangeContainer ndrange(3, globalWorkOffset, globalWorkSize, localWorkSize);
